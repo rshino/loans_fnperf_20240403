@@ -1,0 +1,115 @@
+---
+title: "reference_map"
+output: html_document
+date: "2024-03-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(error = TRUE, echo = TRUE)
+```
+
+
+## Including Plots
+
+```{r }
+library(knitr)
+library(choroplethr)
+library(choroplethrMaps)
+library(choroplethrZip)
+library(ggmap)
+```
+
+## State
+
+```{r }
+data(df_pop_state)
+state_choropleth(df_pop_state,
+    num_colors = 1,
+    zoom = c("new york","new jersey","connecticut"),
+    reference_map = FALSE)
+```
+
+
+```{r }
+data(df_pop_state)
+state_choropleth(df_pop_state,
+    num_colors = 1,
+    zoom = c("new york","new jersey","connecticut"),
+    reference_map = TRUE)
+```
+## County
+
+```{r }
+data(df_pop_county)
+county_choropleth(df_pop_county,state_zoom=c("new york"),num_colors=1
+                  ,reference_map=FALSE)
+
+```
+
+```{r }
+data(df_pop_county)
+county_choropleth(df_pop_county,state_zoom=c("new york"),num_colors=1
+                  ,reference_map=TRUE)
+
+```
+
+## Zip
+
+```{r }
+data(df_pop_zip)
+ zip_choropleth(df_pop_zip,state_zoom=c("new york")
+                ,num_colors=1
+                 ,reference_map=FALSE)
+```
+
+```{r }
+data(df_pop_zip)
+ zip_choropleth(df_pop_zip,state_zoom=c("new york")
+                ,num_colors=1
+                 ,reference_map=TRUE)
+```
+
+## Tract
+
+```{r }
+data(df_pop_ny_tract)
+ tract_choropleth(df_pop_ny_tract,state_name="new york",num_colors=1
+                             ,reference_map=FALSE)
+ 
+```
+
+```{r }
+data(df_pop_ny_tract)
+ tract_choropleth(df_pop_ny_tract,state_name="new york",num_colors=1
+                             ,reference_map=TRUE)
+ 
+```
+
+## Manhattan Tracts 
+
+```{r }
+data(df_pop_ny_tract)
+tract_choropleth(df_pop_ny_tract,
+                 state_name  = "new york",
+                 county_zoom = 36061,
+                 title       = "Manhattan Tract Population Estimates (2012)",
+                 legend      = "Population",
+                 reference_map=FALSE)
+```
+```{r }
+data(df_pop_ny_tract)
+tract_choropleth(df_pop_ny_tract,
+                 state_name  = "new york",
+                 county_zoom = 36061,
+                 title       = "Manhattan Tract Population Estimates (2012)",
+                 legend      = "Population",
+                 reference_map=TRUE)
+```
+
+
+## Environment
+
+This script was executed in the following R environment.
+```{r}
+sessionInfo()
+```

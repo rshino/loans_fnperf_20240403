@@ -1,0 +1,191 @@
+---
+title: Fannie Performance
+output: html_document
+date: "2024-03-09"
+---
+Fannie Cohort Performance 
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(echo = TRUE)
+# https://stackoverflow.com/questions/61771543/assigning-colors-to-table-values-using-choroplethr
+
+library(knitr)
+library(dplyr)
+library(tidyverse)
+library(choroplethr)
+library(choroplethrMaps)
+library(choroplethrZip)
+library(kableExtra)
+
+
+delay_code_labels <- NULL
+knit_hooks$set(delay = function(before, options, envir) {
+    if (before) {
+        delay_code_labels <<- append(delay_code_labels, options$label)
+        return(NULL)  ## otherwise knitr will print delay_code_labels every time
+    } else {
+        
+    }
+})
+opts_chunk$set(delay = TRUE, echo = FALSE, message = FALSE, warning = FALSE, 
+              fig.align='left', fig.width = 8,fig.height=4,dpi=300)
+
+```
+
+```{r }
+setwd('/home/shino/00 SF Loan Performance/00nano/99perf')
+shellscript<-'./run_sql_v22.sh'
+sql<-'fn_v81.sql'
+# speeds by loan size
+#params<-'TERM=360 VINT=2019 ELIG BYAGE BYBSTP B0=085 B1=110 B2=125 B3=150 B4=175 B5=200 B6=225 B7=250 B8=275 B9=500'
+#params<-'TERM=360 VINT=2019 ELIG BYAGE BYBSTP B0=150 B1=200 B2=250'
+# speeds by second home
+#params<-'TERM=360 VINT=2018 ELIG BYAGE BY2HOM MINCOUNT=100'
+#params<-'TERM=360 VINT=2018 BYAGE BY2HOM'
+#params<-'TERM=360 VINT=2019 ELIG BYAGE BY2HOM'
+params<-'TERM=360 VINT=2019 BYAGE BY2HOM'
+#params<-'TERM=360 VINT=2020 ORIGMO=202001,202002,202003,202004,202005,202006 ELIG BYAGE BY2HOM'
+#params<-'TERM=360 VINT=2020 ORIGMO=202007,202008,202009,202010,202011,202012 ELIG BYAGE BY2HOM'
+#params<-'TERM=360 VINT=2021 ORIGMO=202101,202102,202103,202104,202105,202106 ELIG BYAGE BY2HOM'
+#params<-'TERM=360 VINT=2021 ORIGMO=202107,202108,202109,202110,202111,202112 ELIG BYAGE BY2HOM'
+
+#params<-'TERM=360 VINT=2018 ELIG ST=NY BYAGE BY2HOM MINCOUNT=100'
+#params<-'TERM=360 VINT=2019 ELIG ST=NY BYAGE BY2HOM'
+#params<-'TERM=360 VINT=2020 ELIG ST=NY BYAGE BY2HOM MINCOUNT=100'
+#params<-'TERM=360 VINT=2021 ELIG ST=NY BYAGE BY2HOM'
+
+command<-paste(shellscript, sql, params)
+prefix<-'_0-'
+suffix<-'.tsv'
+outfile<-paste0(prefix,gsub(' ','-',params),suffix)
+overwrite<-FALSE
+if(overwrite | !file.exists(outfile))
+{
+  system(command)
+}
+if(!file.exists(outfile))
+{
+  knitr::knit_exit()
+}
+cohortcf<-read.csv(outfile,sep='\t') ## ,colClasses=c("character","numeric"))
+```
+
+```{r}
+factor<-"Occupancy"
+FRAC<-6
+maxAge<-FRAC*(trunc(max(cohortcf$Loan.Age)/FRAC)+1)
+xlab<-'Loan Age (mo.)'
+```
+
+## Historical Prepayments
+
+Parameters = `r params`.
+
+```{r}
+library(ggplot2)
+title<-'Historical Prepayments'
+ylab<-'1 mo. CPR'
+                  #  ,color=factor(Cohort.Balance)))+
+cohortcf$Cohort.2nd.Home<-as.factor(cohortcf$Cohort.2nd.Home)
+
+ggplot(cohortcf,aes(x=Loan.Age, y=CPR
+                     ,color=factor(Cohort.2nd.Home)))+
+  geom_line()+
+  ggtitle(paste0(title,"\n",params))+
+  xlab(xlab)+
+  ylab(ylab)+
+  labs(color=factor)+
+    scale_x_continuous(breaks=seq(0,maxAge,by=FRAC))+
+            scale_y_continuous(labels=scales::percent) +
+   scale_colour_brewer(palette = 'YlOrRd')
+
+```
+## Historical Delinquencies
+
+```{r}
+cohortcf$totDQ<-cohortcf$X30DD.+cohortcf$X60DD.+cohortcf$X90.DD.  # total DQ
+title<-'30 Day+ Delinquency'
+ylab<-'30 Day+ Delinquency'
+ggplot(cohortcf,aes(x=Loan.Age, y=totDQ
+                     ,color=factor(Cohort.2nd.Home)))+
+  geom_line()+
+  ggtitle(paste0(title,'\n',params))+
+  labs(color=factor)+
+  xlab(xlab)+
+  ylab(ylab)+
+    scale_x_continuous(breaks=seq(0,maxAge,by=FRAC))+
+            scale_y_continuous(labels=scales::percent) +
+   scale_colour_brewer(palette = 'YlOrRd')
+
+```
+
+```{r}
+summary<-data.frame(matrix(nrow=nrow(cohortcf)))
+colnames(summary)<-'Loan_Age'
+summary$Term<-cohortcf$Cohort.Term
+summary$Occ<-cohortcf$Cohort.2nd.Home
+summary$MAP_Elig.<-cohortcf$Cohort.MAP.Eligible
+summary$Orig._Loan_Count<-cohortcf$Cohort.Orig..
+summary$Orig._UPB<-cohortcf$Cohort.Orig...1
+summary$Orig._ALS<-summary$Orig._UPB/summary$Orig._Loan_Count
+summary$Loan_Age<-cohortcf$Loan.Age
+summary$CPR_pct<-cohortcf$CPR
+summary$D30_pct<-cohortcf$X30DD.
+summary$D60_pct<-cohortcf$X60DD.
+summary$D90plus_pct<-cohortcf$X90.DD.
+summary$Rate<-cohortcf$WA.Rate
+
+  colnames(summary) <- sub("_pct", " %", colnames(summary))
+  colnames(summary) <- sub("plus", "+", colnames(summary))
+  colnames(summary) <- sub("_gt_", " > ", colnames(summary))
+  colnames(summary) <- gsub("_", " ", colnames(summary))
+  
+  
+summary %>%
+      mutate(across(c('Orig. UPB','Orig. Loan Count','Orig. ALS'),     function(x)format(x,scientific=FALSE,big.mark=',',digits=1,nsmall=0))) %>% 
+     mutate(across(colnames(summary)[grep(' %$',colnames(summary))], function(x)paste0(format(x*100,scientific=FALSE,digits=2,nsmall=0),'%'))) %>% 
+     mutate(across(c(Rate), function(x)format(x,scientific=FALSE,digits=4,nsmall=3))) %>% 
+         mutate_if(is.numeric, format, digits=3,nsmall = 0) %>%  
+      kbl(align=c(rep('r',ncol(summary)))) %>%
+      kable_styling(bootstrap_options = c("striped","condensed"),font_size = 11)  %>%
+    row_spec(0, align='center', angle = 0) 
+```
+
+# Appendices: Source listings and Environment
+
+## Source Listing: `r knitr::current_input()`
+
+```{r codeprint, echo = TRUE, eval = FALSE, ref.label = delay_code_labels, delay = FALSE}
+```
+
+## Query Listing: `r sql`
+
+`r sql` queries the Fannie CRT monthly tables for performance reporting.
+```sql
+`r xfun::file_string(sql)`
+```
+```{r echo=FALSE}
+cppfile <- system(paste("fgrep include",sql,"| sed -e 's/^[^\"]*\"\\([^\"]*\\)\"/\\1/'"), intern = TRUE)
+```
+
+## Source Listing: `r cppfile`
+`r cppfile` contains simple macros which assist formatting of sql output.
+```sql
+`r xfun::file_string(paste0("../",cppfile))`
+```
+## Query Listing: `r shellscript`
+
+`r shellscript` utility script to pass parameters to and 
+enable specific output and define cohort groupings to the performance script `r sql`.
+```sql
+`r xfun::file_string(shellscript)`
+```
+
+
+## Environment
+
+This script was executed in the following R environment.
+```{r}
+sessionInfo()
+```
+

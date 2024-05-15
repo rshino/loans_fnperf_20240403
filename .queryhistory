@@ -24,3 +24,13 @@
 ./run_sql_v23.sh fn_v84.sql F_VINT=2022 F_TERM=180 F_ELIG BY_AGE BY_ST MINCOUNT=100
 ../00util/run_sql_v24.sh fn_v085.sql F_VINT=2022 F_TERM=180 F_ELIG BY_AGE BY_ST MINCOUNT=100
 ../00util/run_sql_v24.sh fn_v085.sql F_VINT=2022 F_TERM=180 F_ELIG BY_AGE BY_ST MINCOUNT=100
+../00util/run_sql_v24.sh fn_v085.sql F_VINT=2022 F_TERM=180 F_ELIG BY_AGE BY_ST MINCOUNT=100
+../00util/run_sql_v24.sh fn_v085.sql F_VINT=2022 F_TERM=180 F_ELIG BY_AGE BY_ST MINCOUNT=100
+../00util/run_sql_v24.sh fn_cohort_v01.sql F_VINT=2023 F_TERM=360 BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v01.sql F_VINT=2023 F_TERM=360 BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v01.sql F_VINT=2023 F_TERM=360 BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v01.sql F_VINT=2023 F_TERM=360 BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v01.sql F_VINT=2023 F_TERM=360 BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v01.sql F_VINT=2023 F_TERM=360 BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v01.sql F_VINT=2023 F_TERM=360 BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v01.sql F_VINT=2018 F_TERM=180 BY_AGE

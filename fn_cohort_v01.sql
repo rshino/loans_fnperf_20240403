@@ -67,13 +67,8 @@
  --	SUMONLY: exit after summary pass
  --
 
-#include "format_v01.cpp"
+#include "format_v02.cpp"
 
-#	ifdef ROLL
-#	  define GF(p) case when grouping(p)=1 then 'Total' else p end  
-#	else ndef ROLL
-#	  define GF(p) p 
-#	endif ROLL
 
 
 #if defined(BY_AGE) && defined(D_HIST)

@@ -1,0 +1,11 @@
+# git ignore
+#
+*~
+\#*
+*.tsv
+archive*
+_output*
+nohup.out
+*.html
+.git.old
+00latestdir

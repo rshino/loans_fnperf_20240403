@@ -343,7 +343,11 @@ fn_orig.loan_id
 
 from
 fn_orig
-	where 1=1
+left join fn_term
+on
+	fn_orig.loan_id = fn_term.loan_id
+where 1=1
+	and (zb_dte is null or zb_dte > first_pay)
        and substring(orig_date,1,4)>=@start_year
        and substring(orig_date,1,4)<=@end_year
        /*_ORIGMO_ and orig_date in ( _ORIGMO_ ) _ORIGMO_*/
@@ -495,7 +499,7 @@ order by loan_term desc
 -- OPTIONALLY SELECT BY AVG COUPON OF SUMMARY
 -- ---------------------------
 
-/*_AVCP_
+#ifdef AVCP
 -- clean up filtered loan table
 delete from
 _temp_filtered_loan_ids temp
@@ -503,20 +507,18 @@ where orig_rate <> ( select wa_note_rate
       from _temp_summary summ
       where 1=1
       and summ.loan_term = temp.loan_term
-_AVCP_*/
-      #AVCP# /*_BY_VINT_       and summ.vintage = temp.vintage  _BY_VINT_*/
-      #AVCP# /*_BY_ST_         and summ.state = temp.state _BY_ST_*/
-      #AVCP# /*_BY_HBAL_       and summ.high_balance_loan_indicator = temp.high_balance_loan_indicator _BY_HBAL_*/
-      #AVCP# /*_BY_FRST_       and summ.first_flag = '0' _BY_FRST_*/
-      #AVCP# /*_BY_2HOM_       and summ.second_home = '0'  _BY_2HOM_*/
-      #AVCP# /*_BY_MI_  	      and summ.mi_flag = '0'  _BY_MI_*/
-      #AVCP# /*_BY_SELL_       and summ.seller_rank = 0 _BY_SELL_*/
-      #AVCP# /*_BY_SVCR_       and summ.servicer_rank = 0 _BY_SVCR_*/
-      #AVCP# /*_BY_CHAN_       and summ.channel = temp.channel _BY_CHAN_*/
-      #AVCP# /*_BY_BAL_        and summ.bal_seg = temp.bal_seg _BY_BAL_*/
-      #AVCP# /*_BY_BALP_        and summ.bal_seg = temp.bal_seg _BY_BALP_*/
-      #AVCP# /*_BY_BSTP_        and summ.bal_seg = temp.bal_seg _BY_BSTP_*/
-/*_AVCP_
+      /*_BY_VINT_       and summ.vintage = temp.vintage  _BY_VINT_*/
+      /*_BY_ST_         and summ.state = temp.state _BY_ST_*/
+      /*_BY_HBAL_       and summ.high_balance_loan_indicator = temp.high_balance_loan_indicator _BY_HBAL_*/
+      /*_BY_FRST_       and summ.first_flag = '0' _BY_FRST_*/
+      /*_BY_2HOM_       and summ.second_home = '0'  _BY_2HOM_*/
+      /*_BY_MI_  	      and summ.mi_flag = '0'  _BY_MI_*/
+      /*_BY_SELL_       and summ.seller_rank = 0 _BY_SELL_*/
+      /*_BY_SVCR_       and summ.servicer_rank = 0 _BY_SVCR_*/
+      /*_BY_CHAN_       and summ.channel = temp.channel _BY_CHAN_*/
+      /*_BY_BAL_        and summ.bal_seg = temp.bal_seg _BY_BAL_*/
+      /*_BY_BALP_        and summ.bal_seg = temp.bal_seg _BY_BALP_*/
+      /*_BY_BSTP_        and summ.bal_seg = temp.bal_seg _BY_BSTP_*/
 );
 
 -- remake the summary table
@@ -528,20 +530,18 @@ insert into _temp_summary
 	loan_term
 	, wa_note_rate
 	, med_note_rate
-_AVCP_*/
-	#AVCP# 	/*_BY_VINT_ , vintage _BY_VINT_*/
-	#AVCP# 	/*_BY_ST_ , state _BY_ST_*/
-	#AVCP# 	/*_BY_HBAL_ , high_balance_loan_indicator  _BY_HBAL_*/
-	#AVCP# 	/*_BY_FRST_ , first_flag _BY_FRST_*/
-	#AVCP# 	/*_BY_2HOM_ , second_home _BY_2HOM_*/
-	#AVCP# 	/*_BY_MI_   , mi_flag _BY_MI_*/
-	#AVCP# 	/*_BY_SELL_ , seller_rank _BY_SELL_*/
-	#AVCP# 	/*_BY_SVCR_ , servicer_rank  _BY_SVCR_*/
-	#AVCP# 	/*_BY_CHAN_ , channel _BY_CHAN_*/
-	#AVCP#  /*_BY_BAL_   ,bal_seg, max_bal _BY_BAL_*/
-	#AVCP#  /*_BY_BALP_  ,bal_seg , max_bal _BY_BALP_*/
-	#AVCP#  /*_BY_BSTP_  ,bal_seg , max_bal _BY_BSTP_*/
-/*_AVCP_	
+		/*_BY_VINT_ , vintage _BY_VINT_*/
+		/*_BY_ST_ , state _BY_ST_*/
+		/*_BY_HBAL_ , high_balance_loan_indicator  _BY_HBAL_*/
+		/*_BY_FRST_ , first_flag _BY_FRST_*/
+		/*_BY_2HOM_ , second_home _BY_2HOM_*/
+		/*_BY_MI_   , mi_flag _BY_MI_*/
+		/*_BY_SELL_ , seller_rank _BY_SELL_*/
+		/*_BY_SVCR_ , servicer_rank  _BY_SVCR_*/
+		/*_BY_CHAN_ , channel _BY_CHAN_*/
+	 /*_BY_BAL_   ,bal_seg, max_bal _BY_BAL_*/
+	 /*_BY_BALP_  ,bal_seg , max_bal _BY_BALP_*/
+	 /*_BY_BSTP_  ,bal_seg , max_bal _BY_BSTP_*/
 	, loan_cnt
 	, orig_upb
 )
@@ -549,57 +549,50 @@ select
 	coalesce(loan_term,0)
 	, round(sum(orig_rate*orig_upb)/sum(orig_upb)*8,0)/8 as wa_note_rate
 	, round(avg(orig_rate),3) as med_note_rate
-_AVCP_*/
-	#AVCP# /*_BY_VINT_ , coalesce(vintage,0) _BY_VINT_*/
-	#AVCP# /*_BY_ST_   , coalesce(state,'0') _BY_ST_*/
-	#AVCP# /*_BY_HBAL_ , coalesce(high_balance_loan_indicator,'0')  _BY_HBAL_*/
-	#AVCP# /*_BY_FRST_ , coalesce(first_flag,'0') _BY_FRST_*/
-	#AVCP# /*_BY_2HOM_ , coalesce(second_home,'0') _BY_2HOM_*/
-	#AVCP# /*_BY_MI_   , coalesce(mi_flag,'0') _BY_MI_*/
-	#AVCP# /*_BY_SELL_ , coalesce(seller_rank,0)  _BY_SELL_*/
-	#AVCP# /*_BY_SVCR_ , coalesce(servicer_rank,0)  _BY_SVCR_*/
-	#AVCP# /*_BY_CHAN_ , coalesce(channel,'0') _BY_CHAN_*/
-	#AVCP# /*_BY_BAL_  , coalesce(bal_seg,'0'),max(orig_upb) _BY_BAL_*/
-	#AVCP# /*_BY_BALP_ , coalesce(bal_seg,'0'),max(orig_upb) _BY_BALP_*/
-	#AVCP# /*_BY_BSTP_ , coalesce(bal_seg,'0'),max(orig_upb) _BY_BSTP_*/
-/*_AVCP_	
+	/*_BY_VINT_ , coalesce(vintage,0) _BY_VINT_*/
+	/*_BY_ST_   , coalesce(state,'0') _BY_ST_*/
+	/*_BY_HBAL_ , coalesce(high_balance_loan_indicator,'0')  _BY_HBAL_*/
+	/*_BY_FRST_ , coalesce(first_flag,'0') _BY_FRST_*/
+	/*_BY_2HOM_ , coalesce(second_home,'0') _BY_2HOM_*/
+	/*_BY_MI_   , coalesce(mi_flag,'0') _BY_MI_*/
+	/*_BY_SELL_ , coalesce(seller_rank,0)  _BY_SELL_*/
+	/*_BY_SVCR_ , coalesce(servicer_rank,0)  _BY_SVCR_*/
+	/*_BY_CHAN_ , coalesce(channel,'0') _BY_CHAN_*/
+	/*_BY_BAL_  , coalesce(bal_seg,'0'),max(orig_upb) _BY_BAL_*/
+	/*_BY_BALP_ , coalesce(bal_seg,'0'),max(orig_upb) _BY_BALP_*/
+	/*_BY_BSTP_ , coalesce(bal_seg,'0'),max(orig_upb) _BY_BSTP_*/
 	,count(*) as loan_cnt
 	,sum(orig_upb) as orig_upb
 from _temp_filtered_loan_ids
 group by loan_term
-_AVCP_*/
-      #AVCP# /*_BY_BAL_ , bal_seg _BY_BAL_*/
-      #AVCP# /*_BY_BALP_ , bal_seg _BY_BALP_*/
-      #AVCP# /*_BY_BSTP_ , bal_seg _BY_BSTP_*/
-      #AVCP# /*_BY_CHAN_ , channel _BY_CHAN_*/
-      #AVCP# /*_BY_VINT_ , vintage _BY_VINT_*/
-      #AVCP# /*_BY_ST_ ,state _BY_ST_*/
-      #AVCP# /*_BY_HBAL_ , high_balance_loan_indicator  _BY_HBAL_*/
-      #AVCP# /*_BY_FRST_ , first_flag _BY_FRST_*/
-      #AVCP# /*_BY_2HOM_ , second_home _BY_2HOM_*/
-      #AVCP# /*_BY_MI_ 	, mi_flag _BY_MI_*/
-      #AVCP# /*_BY_SELL_ , seller_rank  _BY_SELL_*/
-      #AVCP# /*_BY_SVCR_ , servicer_rank  _BY_SVCR_*/
-/*_AVCP_
+      /*_BY_BAL_ , bal_seg _BY_BAL_*/
+      /*_BY_BALP_ , bal_seg _BY_BALP_*/
+      /*_BY_BSTP_ , bal_seg _BY_BSTP_*/
+      /*_BY_CHAN_ , channel _BY_CHAN_*/
+      /*_BY_VINT_ , vintage _BY_VINT_*/
+      /*_BY_ST_ ,state _BY_ST_*/
+      /*_BY_HBAL_ , high_balance_loan_indicator  _BY_HBAL_*/
+      /*_BY_FRST_ , first_flag _BY_FRST_*/
+      /*_BY_2HOM_ , second_home _BY_2HOM_*/
+      /*_BY_MI_ 	, mi_flag _BY_MI_*/
+      /*_BY_SELL_ , seller_rank  _BY_SELL_*/
+      /*_BY_SVCR_ , servicer_rank  _BY_SVCR_*/
 with rollup 
 order by loan_term desc
-_AVCP_*/
-      #AVCP# /*_BY_VINT_ , vintage _BY_VINT_*/
-      #AVCP# /*_BY_ST_ , state _BY_ST_*/
-      #AVCP# /*_BY_HBAL_ , grouping(high_balance_loan_indicator), high_balance_loan_indicator _BY_HBAL_*/
-      #AVCP# /*_BY_FRST_ ,  grouping(first_flag),first_flag _BY_FRST_*/
-      #AVCP# /*_BY_2HOM_ ,  grouping(second_home),second_home _BY_2HOM_*/
-      #AVCP# /*_BY_SELL_ ,grouping(seller_rank),-cast(seller_rank as unsigned) desc   _BY_SELL_*/
-      #AVCP# /*_BY_SVCR_ ,grouping(servicer_rank),-cast(servicer_rank as unsigned) desc   _BY_SVCR_*/
-      #AVCP# /*_BY_MI_ 	,  grouping(mi_flag), mi_flag _BY_MI_*/
-      #AVCP# /*_BY_CHAN_ ,  grouping(channel), channel _BY_CHAN_*/
-      #AVCP# /*_BY_BAL_ ,  grouping(bal_seg), bal_seg _BY_BAL_*/
-      #AVCP# /*_BY_BALP_ ,  grouping(bal_seg), bal_seg _BY_BALP_*/
-      #AVCP# /*_BY_BSTP_ ,  grouping(bal_seg), bal_seg _BY_BSTP_*/
-
-/*_AVCP_
+      /*_BY_VINT_ , vintage _BY_VINT_*/
+      /*_BY_ST_ , state _BY_ST_*/
+      /*_BY_HBAL_ , grouping(high_balance_loan_indicator), high_balance_loan_indicator _BY_HBAL_*/
+      /*_BY_FRST_ ,  grouping(first_flag),first_flag _BY_FRST_*/
+      /*_BY_2HOM_ ,  grouping(second_home),second_home _BY_2HOM_*/
+      /*_BY_SELL_ ,grouping(seller_rank),-cast(seller_rank as unsigned) desc   _BY_SELL_*/
+      /*_BY_SVCR_ ,grouping(servicer_rank),-cast(servicer_rank as unsigned) desc   _BY_SVCR_*/
+      /*_BY_MI_ 	,  grouping(mi_flag), mi_flag _BY_MI_*/
+      /*_BY_CHAN_ ,  grouping(channel), channel _BY_CHAN_*/
+      /*_BY_BAL_ ,  grouping(bal_seg), bal_seg _BY_BAL_*/
+      /*_BY_BALP_ ,  grouping(bal_seg), bal_seg _BY_BALP_*/
+      /*_BY_BSTP_ ,  grouping(bal_seg), bal_seg _BY_BSTP_*/
 ;
-_AVCP_*/
+#endif AVCP
 
 insert into _temp_summary2 select * from _temp_summary;
 
@@ -624,7 +617,7 @@ _SUMONLY_*/
 
  -- ============================================================================
  -- ============================================================================
- -- QUERY Extract the toplevel data ============================================
+ -- TOPLEVEL QUERY Extract the data  ===========================================
  -- ============================================================================
  -- ============================================================================
 
@@ -706,7 +699,7 @@ case when vintages = 0 then 'All' else substring(vintages,1,4) end   as "Vintage
 
 #ifdef BY_AGE
 	  , loan_age					as "Loan Age"
-	  , FP(cpr,2)  		as "CPR"
+	  , FP(cpr,2)  		as "CPR%"
 	  , FP(D30DDPCT,2) 		as "30DD%"	  
 	  , FP(D60DDPCT,2)  	as "60DD%"	  
 	  , FP(D90PLUSPCT,2)  	as "90+DD%"	  
@@ -784,14 +777,15 @@ case when vintages = 0 then 'All' else substring(vintages,1,4) end   as "Vintage
 	  -- consistency checking & debugging
 
 	  , FC(loan_ct,0)				as "Loans"
-	  , FC(current_upb,0) 			as "Curr Bal"
-	  , FC(orig_upb,0) 				as "Orig Bal"
-	  , FP(smm,6) 		as "SMM"
-	  , FC(sched_bal,0) 			as "Sched Bal"
-	  , FC(unsched_prin,0) 			as "Unsched Prin"
-	  , FC(defaulted_upb,0) 			as "Mo Defaults"
+	  , FC(current_upb,0) 			as "Curr Bal$"
+	  , FC(orig_upb,0) 				as "Orig Bal$"
+	  , FP(smm,6) 		as "SMM%"
+	  , FC(sched_bal,0) 			as "Sched Bal$"
+	  , FC(unsched_prin,0) 			as "Unsched Prin$"
+	  , FC(unsched_cnt,0) 			as "Unsched Cnt"
+	  , FC(defaulted_upb,0) 			as "Mo Defaults$"
 	  , FC(defaulted_cnt,0) 			as "Mo Def Cnt"
-	  , FC(coalesce(MO_NET_LOSS,0),0) 		as "Mo Net Loss"	  
+	  , FC(coalesce(MO_NET_LOSS,0),0) 		as "Mo Net Loss$"	  
 	  , FC(coalesce(loss_cnt,0),0) 		as "Mo Loss Cnt"	  
 	  , FC(sum(case when loan_age is not null then defaulted_upb end) over (partition by loan_term
 
@@ -806,7 +800,7 @@ case when vintages = 0 then 'All' else substring(vintages,1,4) end   as "Vintage
 	  	  /*_BY_BALP_ ,bal_seg _BY_BALP_*/
 	  	  /*_BY_BSTP_ ,bal_seg _BY_BSTP_*/
 
-	    order by isnull(loan_age),loan_age),0)	as "Cum Def"
+	    order by isnull(loan_age),loan_age),0)	as "Cum Def$"
 	  , FC(sum(case when loan_age is not null then MO_NET_LOSS end) over (partition by loan_term
 
 	  	  /*_BY_VINT_ ,vintage _BY_VINT_*/
@@ -820,7 +814,7 @@ case when vintages = 0 then 'All' else substring(vintages,1,4) end   as "Vintage
 	  	  /*_BY_BALP_ ,bal_seg _BY_BALP_*/
 	  	  /*_BY_BSTP_ ,bal_seg _BY_BSTP_*/
 
-	    order by isnull(loan_age),loan_age),0)	as "Cum Loss"
+	    order by isnull(loan_age),loan_age),0)	as "Cum Loss$"
 #endif BY_AGE
 
 
@@ -1046,7 +1040,7 @@ loan_term -- coalesce(loan_term,0) as loan_term -- case when grouping(loan_term)
 /*_BY_BALP_ * (1-grouping(bal_seg)) _BY_BALP_*/
 /*_BY_BSTP_ * (1-grouping(bal_seg)) _BY_BSTP_*/
 as NOT_AGGREGATE
-#endif
+#endif NEVER
 , count(*) as loan_ct
 , sum(orig_upb) as orig_upb
 , avg(orig_upb) as ALS
@@ -1072,6 +1066,7 @@ _BY_BSTP_*/
 	  , sum(current_upb)				as current_upb  
 	  , sum(sched_bal) 				as sched_bal
 	  , sum(unsched_prin) 				as unsched_prin
+	  , sum(unsched_cnt) 				as unsched_cnt
 	  , case when sum(sched_bal)>0 
 	      then sum(unsched_prin)/sum(sched_bal) end as smm
 	  , case when sum(sched_bal)>0 
@@ -1319,6 +1314,7 @@ select vintage  -- select substring(orig.orig_date,1,4) as vintage
    	term.LAST_UPB
    else hist.current_upb end						as SCHED_BAL
 ,  case when term.ZERO_BAL_CODE = 01 then term.LAST_UPB else 0 end 	as UNSCHED_PRIN
+,  case when term.ZERO_BAL_CODE = 01 then 1 else 0 end 	as UNSCHED_CNT
 _BY_AGE_*/
 
 , bal_seg

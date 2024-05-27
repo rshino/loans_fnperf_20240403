@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # runs cohorts by channel
 
-cohort=(F_VINT=2017 F_TERM=360 F_ELIG)
+cohort=(F_VINT=2014 F_TERM=360 F_ELIG)
 ../00util/run_sql_v24.sh fn_cohort_v01.sql "${cohort[@]}"
 
 for CHAN in R B C

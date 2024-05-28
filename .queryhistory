@@ -112,3 +112,21 @@
 ../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2023 F_ST=NY UNIT=1 F_TERM=360 BY_AGE BY_VINT
 ../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2023 F_ST=NY UNIT=1 F_TERM=360 BY_AGE BY_VINT
 ../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2016 F_ST=CA UNIT=1 F_TERM=360 BY_AGE BY_VINT
+../00util/run_sql_v24.sh fn_cohort_v01.sql F_VINT=2014 F_ELIG UNIT=1 F_TERM=360 BALN=150 BAL0=0 BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v01.sql F_VINT=2014 F_ELIG UNIT=1 F_TERM=360 BALN=200 BAL0=150 BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v01.sql F_VINT=2014 F_TERM=360 F_ELIG
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG F_CHAN=R BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG F_CHAN=B BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG F_CHAN=C BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG F_CHAN=R BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG F_CHAN=B BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG F_CHAN=C BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG F_CHAN=R BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG F_CHAN=B BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG F_CHAN=C BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG F_CHAN=R BY_CHAN BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG F_CHAN=B BY_CHAN BY_AGE
+../00util/run_sql_v24.sh fn_cohort_v02.sql F_VINT=2014 F_TERM=360 F_ELIG F_CHAN=C BY_CHAN BY_AGE

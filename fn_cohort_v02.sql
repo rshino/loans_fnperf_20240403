@@ -1520,7 +1520,9 @@ fn_month hist -- historical prepay
 LEFT JOIN
 fn_term term -- terminal state
 	      on orig.loan_id=term.loan_id
+#if defined(BY_AGE) || defined(D_HIST)
 	      and hist.act_period=term.act_period # RNS20240524
+#endif	defined(BY_AGE) || defined(D_HIST)
 where 1=1
        and substring(orig.orig_date,1,4)>=@start_year
        and substring(orig.orig_date,1,4)<=@end_year
